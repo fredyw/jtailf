@@ -50,7 +50,7 @@ public class JTailFTest {
     
     @Test
     public void testFollow() throws Exception {
-        JTailF.follow("test.txt", 100, false, new IJTailFCallback() {
+        JTailF.tail("test.txt", 100, false, new IJTailFCallback() {
             @Override
             public void readLine(String line) {
                 int idx = line.indexOf("Hello World");

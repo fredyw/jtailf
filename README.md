@@ -21,7 +21,7 @@ https://raw.github.com/fredyw/jtailf/master/jtailf.jar
 Examples
 --------
 ```java
-JTailF.follow("test.txt", 100, false, new IJTailFCallback() {
+JTailF.tail("test.txt", 100, false, new IJTailFCallback() {
     @Override
     public void readLine(String line) {
         int idx = line.indexOf("Hello World");

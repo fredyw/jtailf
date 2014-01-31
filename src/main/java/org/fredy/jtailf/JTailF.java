@@ -44,7 +44,7 @@ public class JTailF {
      * @throws FileNotFoundException thrown if a file is not found
      * @throws IOException thrown for anything related to I/O
      */
-    public static void follow(String file, int sleepInterval, boolean keepReading,
+    public static void tail(String file, int sleepInterval, boolean keepReading,
         IJTailFCallback func)
         throws FileNotFoundException, IOException {
         try (RandomAccessFile raf = new RandomAccessFile(new File(file), "r")) {
@@ -53,13 +53,13 @@ public class JTailF {
                 if ((line = raf.readLine()) != null) {
                     func.readLine(line);
                 } else {
-                    if (!keepReading) {
-                        break;
-                    }
                     try {
                         Thread.sleep(sleepInterval);
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
+                    }
+                    if (!keepReading) {
+                        break;
                     }
                 }
             }
@@ -90,7 +90,7 @@ public class JTailF {
         }
         
         try {
-            JTailF.follow(args[0], 100, true, new JTailFCallback(System.out));
+            JTailF.tail(args[0], 100, true, new JTailFCallback(System.out));
         } catch (IOException e) {
             e.printStackTrace();
         }
