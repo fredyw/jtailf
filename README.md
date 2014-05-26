@@ -16,7 +16,7 @@ The JAR will be created in build/libs directory.
 
 Download
 --------
-https://raw.github.com/fredyw/jtailf/master/jtailf.jar
+https://github.com/fredyw/jtailf/releases
 
 Examples
 --------
