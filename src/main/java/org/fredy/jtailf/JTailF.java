@@ -25,6 +25,7 @@ package org.fredy.jtailf;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.RandomAccessFile;
 
 /**
@@ -38,16 +39,14 @@ public class JTailF {
      * 
      * @param file the file name to be followed
      * @param sleepInterval the sleep interval in ms
-     * @param keepReading if set to true, it will keep waiting until there is
-     *                    a new stream
      * @param func the callbcak function
      * @throws FileNotFoundException thrown if a file is not found
      * @throws IOException thrown for anything related to I/O
      */
-    public static void tail(String file, int sleepInterval, boolean keepReading,
-        IJTailFCallback func)
+    public static void tail(String file, int sleepInterval, IJTailFCallback func)
         throws FileNotFoundException, IOException {
-        try (RandomAccessFile raf = new RandomAccessFile(new File(file), "r")) {
+        final RandomAccessFile raf = new RandomAccessFile(new File(file), "r");;
+        try {
             while (true) {
                 String line = null;
                 if ((line = raf.readLine()) != null) {
@@ -58,12 +57,13 @@ public class JTailF {
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
                     }
-                    if (!keepReading) {
+                    if (!func.keepReading()) {
                         break;
                     }
                 }
             }
-            
+        } finally {
+            raf.close();
         }
     }
     
@@ -84,15 +84,25 @@ public class JTailF {
         return true;
     }
     
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         if (!validateArgs(args)) {
             System.exit(1);
         }
         
+        final PrintWriter writer = new PrintWriter(System.out, true);
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+            @Override
+            public void run() {
+                writer.close();
+            }
+        }));
+        
         try {
-            JTailF.tail(args[0], 100, true, new JTailFCallback(System.out));
+            JTailF.tail(args[0], 100, new JTailFCallback(writer, true));
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            writer.close();
         }
     }
 }

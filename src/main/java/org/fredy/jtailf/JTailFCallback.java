@@ -22,7 +22,7 @@
  */
 package org.fredy.jtailf;
 
-import java.io.PrintStream;
+import java.io.PrintWriter;
 
 /**
  * This is the default implementation of IJTailFCallback
@@ -30,14 +30,25 @@ import java.io.PrintStream;
  * @author fredy
  */
 public class JTailFCallback implements IJTailFCallback {
-    private PrintStream out;
+    private PrintWriter writer;
+    private boolean keepReading;
     
-    public JTailFCallback(PrintStream out) {
-        this.out = out;
+    public JTailFCallback(PrintWriter writer, boolean keepReading) {
+        this.writer = writer;
+        this.keepReading = keepReading;
     }
     
     @Override
     public void readLine(String line) {
-        out.println(line);
+        writer.println(line);
+    }
+
+    @Override
+    public boolean keepReading() {
+        return keepReading;
+    }
+    
+    public void stopReading() {
+        keepReading = false;
     }
 }

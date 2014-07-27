@@ -34,4 +34,12 @@ public interface IJTailFCallback {
      * @param line the line.
      */
     void readLine(String line);
+    
+    /**
+     * If this method returns true, it will keep waiting until there is
+     * a new stream.
+     * 
+     * @return true to keep waiting until there is a new stream
+     */
+    boolean keepReading();
 }

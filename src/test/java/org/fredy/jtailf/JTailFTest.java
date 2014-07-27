@@ -26,7 +26,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -36,21 +35,19 @@ import org.junit.Test;
 public class JTailFTest {
     @BeforeClass
     public static void init() throws IOException {
-        try (PrintWriter pw = new PrintWriter("test.txt")) {
+        PrintWriter pw = new PrintWriter("test.txt");
+        try {
             for (int i = 1; i <= 1000; i++) {
                 pw.println(i + " Hello World");
             }
+        } finally {
+            pw.close();
         }
     }
     
-    @AfterClass
-    public static void cleanUp() {
-        new File("test.txt").delete();
-    }
-    
     @Test
-    public void testFollow() throws Exception {
-        JTailF.tail("test.txt", 100, false, new IJTailFCallback() {
+    public void testFollowCustomCallback() throws Exception {
+        JTailF.tail("test.txt", 100, new IJTailFCallback() {
             @Override
             public void readLine(String line) {
                 int idx = line.indexOf("Hello World");
@@ -62,6 +59,55 @@ public class JTailFTest {
                     }
                 }
             }
+            @Override
+            public boolean keepReading() {
+                return false;
+            }
         });
+    }
+    
+    @Test
+    public void testFollowDefaultCallbackWriteToConsole() throws Exception {
+        PrintWriter writer = new PrintWriter(System.out, true);
+        try {
+            final JTailFCallback callback = new JTailFCallback(writer, false);
+            JTailF.tail("test.txt", 100, callback);
+        } finally {
+            if (writer != null) {
+                writer.close();
+            }
+        }
+    }
+    
+    @Test
+    public void testFollowDefaultCallbackWriteToFile() throws Exception {
+        PrintWriter writer = new PrintWriter(new File("abc.txt"));
+        try {
+            final JTailFCallback callback = new JTailFCallback(writer, false);
+            JTailF.tail("test.txt", 100, callback);
+        } finally {
+            writer.close();
+        }
+    }
+    
+    @Test
+    public void testFollowDefaultCallbackStopReading() throws Exception {
+        PrintWriter writer = new PrintWriter(new File("def.txt"));
+        final JTailFCallback callback = new JTailFCallback(writer, true);
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    JTailF.tail("test.txt", 100, callback);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        thread.start();
+        
+        Thread.sleep(3000);
+        callback.stopReading();
+        writer.close();
     }
 }
