@@ -12,7 +12,7 @@ jtailf uses Gradle build system (http://www.gradle.org/) and requires minimum Ja
 The JAR will be created in build/libs directory.
 
 ### Running jtailf ###
-    java -jar build/libs/jtailf.jar <filename>
+    java -jar build/libs/jtailf-<version>.jar <filename>
 
 Download
 --------
